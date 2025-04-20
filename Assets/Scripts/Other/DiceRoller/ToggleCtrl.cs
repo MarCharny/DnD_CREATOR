@@ -7,33 +7,33 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Toggle))]
 public class ToggleCtrl : MonoBehaviour
 {
-    [SerializeField] public int value;
+    [SerializeField] public int m_value;
 
-    [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color selectedColor = Color.black;
-    [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Color m_normalColor = Color.white;
+    [SerializeField] private Color m_selectedColor = Color.black;
+    [SerializeField] private TextMeshProUGUI m_text;
 
-    private Toggle obj;
+    private Toggle m_obj;
 
     private void Awake()
     {
-        obj = GetComponent<Toggle>();
-        text = GetComponentInChildren<TextMeshProUGUI>();
+        m_obj = GetComponent<Toggle>();
+        m_text = GetComponentInChildren<TextMeshProUGUI>();
 
-        obj.onValueChanged.AddListener(OnToggleValueChanged);
+        m_obj.onValueChanged.AddListener(OnToggleValueChanged);
     }
 
     private void OnToggleValueChanged(bool isOn)
     {
-        if (text != null)
+        if (m_text != null)
         {
-            text.color = isOn ? selectedColor : normalColor;
+            m_text.color = isOn ? m_selectedColor : m_normalColor;
         }
     }
 
     private void OnDestroy()
     {
-        obj.onValueChanged.RemoveListener(OnToggleValueChanged);
+        m_obj.onValueChanged.RemoveListener(OnToggleValueChanged);
     }
 
 }

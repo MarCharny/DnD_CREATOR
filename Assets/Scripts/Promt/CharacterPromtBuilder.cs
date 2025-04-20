@@ -5,43 +5,43 @@ using UnityEngine;
 
 public class CharacterPromptBuilder : PromptBuilder
 {
-    private bool isFullBody = false;
+    private bool m_isFullBody = false;
 
     public CharacterPromptBuilder(bool isFullBody = false)
     {
-        this.isFullBody = isFullBody;
-        prompt.Append(isFullBody
+        this.m_isFullBody = isFullBody;
+        m_prompt.Append(isFullBody
             ? "Create a full-body character portrait of "
             : "Create a close-up portrait of ");
     }
 
     public CharacterPromptBuilder AddCharacterClass(string type)
     {
-        prompt.Append($"{type}, ");
+        m_prompt.Append($"{type}, ");
         return this;
     }
 
     public CharacterPromptBuilder AddAppearance(string appearance)
     {
-        prompt.Append($"{appearance}, ");
+        m_prompt.Append($"{appearance}, ");
         return this;
     }
 
     public CharacterPromptBuilder AddClothing(string clothing)
     {
-        prompt.Append($"wearing {clothing}, ");
+        m_prompt.Append($"wearing {clothing}, ");
         return this;
     }
 
     public override string Build()
     {
-        if (prompt.Length > 0)
-            prompt.Length -= 2;
+        if (m_prompt.Length > 0)
+            m_prompt.Length -= 2;
 
-        prompt.Append(isFullBody
+        m_prompt.Append(m_isFullBody
             ? ", dynamic pose, full-body, highly detailed, 8K"
             : ", intricate facial details, studio lighting, 4K");
 
-        return prompt.ToString();
+        return m_prompt.ToString();
     }
 }
