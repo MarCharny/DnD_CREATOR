@@ -5,10 +5,6 @@ using UnityEngine.Networking;
 
 public class AIReplicateManager : AIManagerInterface
 {
-    private const string StableDiffusionModel = "";
-    private const string MistralModel = "";
-
-    private readonly string m_apiKey = "";
 
     public AIReplicateManager()
     {
