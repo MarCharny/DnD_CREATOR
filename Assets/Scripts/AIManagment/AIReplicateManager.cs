@@ -8,7 +8,7 @@ public class AIReplicateManager : AIManagerInterface
     private const string StableDiffusionModel = "stability-ai/stable-diffusion:ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4";
     private const string MistralModel = "mistralai/mistral-7b-instruct-v0.1:83b6a56e7c828e667f21fd596c338fd4f0039b46bcfa18d973e8e70e455fda70";
 
-    private readonly string m_apiKey = "r8_OHFs7PHAC2AlmiGDY4x1TpHbG9hkByG05kZvS";
+    private readonly string m_apiKey = "";
 
     public AIReplicateManager()
     {
