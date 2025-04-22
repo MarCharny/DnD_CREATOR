@@ -5,7 +5,6 @@ using UnityEngine.Networking;
 
 public class AIReplicateManager : AIManagerInterface
 {
-
     public AIReplicateManager()
     {
         m_apiKey = GetEnviromentAPIKey();
