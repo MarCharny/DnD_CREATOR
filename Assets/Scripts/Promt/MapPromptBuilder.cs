@@ -4,26 +4,27 @@ using UnityEngine;
 
 public class MapPromptBuilder : PromptBuilder
 {
-    public MapPromptBuilder()
+    public MapPromptBuilder AddBasic()
     {
         m_prompt.Append("Create a top-down view map of ");
-    }
-
-    public MapPromptBuilder AddMapType(string type)
-    {
-        m_prompt.Append($"{type}, ");
         return this;
     }
 
-    public MapPromptBuilder AddLandscape(string landscape)
+    public MapPromptBuilder AddCommon(string desc)
     {
-        m_prompt.Append($"with {landscape}, ");
+        m_prompt.Append($"a {desc} ");
         return this;
     }
 
-    public MapPromptBuilder AddStyle(string style)
+    public MapPromptBuilder AddStyle(string desc)
     {
-        m_prompt.Append($"in {style} style, ");
+        m_prompt.Append($"in {desc}, style ");
+        return this;
+    }
+
+    public MapPromptBuilder AddObjects(string desc)
+    {
+        m_prompt.Append($"with {desc} on it, ");
         return this;
     }
 
@@ -35,6 +36,7 @@ public class MapPromptBuilder : PromptBuilder
         }
 
         m_prompt.Append(", highly detailed, 4K, digital painting");
+        m_prompt.Append($", {m_negativePrompt}");
         return m_prompt.ToString();
     }
 }

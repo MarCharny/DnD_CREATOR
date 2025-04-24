@@ -6,20 +6,13 @@ using UnityEngine;
 public abstract class PromptBuilder
 {
     protected StringBuilder m_prompt = new StringBuilder();
-    protected string m_negativePrompt = "blurry, low quality, distorted";
+    protected string m_negativePrompt = "not blurry, not low quality, not distorted";
 
     public abstract string Build();
-
-    public PromptBuilder AddNegativePrompt(string negative)
-    {
-        m_negativePrompt += ", " + negative;
-        return this;
-    }
 
     public PromptBuilder Reset()
     {
         m_prompt.Clear();
-        m_negativePrompt = "blurry, low quality, distorted";
         return this;
     }
 

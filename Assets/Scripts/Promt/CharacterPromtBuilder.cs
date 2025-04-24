@@ -7,29 +7,43 @@ public class CharacterPromptBuilder : PromptBuilder
 {
     private bool m_isFullBody = false;
 
-    public CharacterPromptBuilder(bool isFullBody = false)
+    public CharacterPromptBuilder AddBasic(bool isFullBody = false)
     {
         this.m_isFullBody = isFullBody;
         m_prompt.Append(isFullBody
-            ? "Create a full-body character portrait of "
-            : "Create a close-up portrait of ");
-    }
+            ? "Create a full-body character picture of "
+            : "Create a close-up face portrait of ");
 
-    public CharacterPromptBuilder AddCharacterClass(string type)
-    {
-        m_prompt.Append($"{type}, ");
         return this;
     }
 
-    public CharacterPromptBuilder AddAppearance(string appearance)
+    public CharacterPromptBuilder AddRace(string desc)
     {
-        m_prompt.Append($"{appearance}, ");
+        m_prompt.Append($" {desc} being, ");
         return this;
     }
 
-    public CharacterPromptBuilder AddClothing(string clothing)
+    public CharacterPromptBuilder AddSex(int isMale)
     {
-        m_prompt.Append($"wearing {clothing}, ");
+        m_prompt.Append(isMale == 0 ? " man " : "woman ");
+        return this;
+    }
+
+    public CharacterPromptBuilder AddAge(string desc)
+    {
+        m_prompt.Append($"of {desc} years old, ");
+        return this;
+    }
+
+    public CharacterPromptBuilder AddAppearance(string desc)
+    {
+        m_prompt.Append($" with {desc}, ");
+        return this;
+    }
+
+    public CharacterPromptBuilder AddClothing(string desc)
+    {
+        m_prompt.Append($"wearing {desc}, ");
         return this;
     }
 
@@ -42,6 +56,9 @@ public class CharacterPromptBuilder : PromptBuilder
             ? ", dynamic pose, full-body, highly detailed, 8K"
             : ", intricate facial details, studio lighting, 4K");
 
+        m_prompt.Append(m_negativePrompt);
+
         return m_prompt.ToString();
     }
+
 }

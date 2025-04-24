@@ -1,29 +1,45 @@
 using System;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Rendering.LookDev;
+using UnityEngine.SocialPlatforms;
+using UnityEngine.TextCore.Text;
+using UnityEngine.UI;
 
 public class AIReplicateManager : AIManagerInterface
 {
+    private const string StableDiffusionModel = "stability-ai/stable-diffusion-3.5-medium";
+    private const string MistralModel = "mistralai/mistral-7b-v0.1";
+
     public AIReplicateManager()
     {
-        m_apiKey = GetEnviromentAPIKey();
-
-        if (string.IsNullOrEmpty(m_apiKey))
-        {
-            Debug.LogError("Replicate API key not found in environment variables");
-        }
+        //m_apiKey = GetEnviromentAPIKey();
+        //
+        //if (string.IsNullOrEmpty(m_apiKey))
+        //{
+        //    Debug.LogError("Replicate API key not found in environment variables");
+        //}
     }
 
-    public async Task<Texture2D> GenerateImageAsync(string prompt)
+    public async Task<Texture2D> GenerateImageAsync(string prompt, ImageType type)
     {
         if (string.IsNullOrEmpty(m_apiKey))
             return null;
 
         try
         {
-            string inputJson = $"{{\"prompt\":\"{EscapeJsonString(prompt)}\", \"width\": 512, \"height\": 512}}";
-            string predictionUrl = await CreatePrediction(StableDiffusionModel, inputJson);
+            string ratio = type switch
+            {
+                ImageType.Fullbody => "9:16",
+                ImageType.Avatar => "1:1",
+                ImageType.Map => "16:9"
+            };
+            string inputJson = GenerateImageInputJson(prompt, ratio);
+            string url = $"https://api.replicate.com/v1/models/{StableDiffusionModel}/predictions";
+            string predictionUrl = await CreatePrediction(url, inputJson);
 
             string resultUrl = await WaitForPredictionResult(predictionUrl);
             return await DownloadImage(resultUrl);
@@ -41,8 +57,9 @@ public class AIReplicateManager : AIManagerInterface
 
         try
         {
-            string inputJson = $"{{\"prompt\":\"{EscapeJsonString(prompt)}\", \"max_new_tokens\": 100}}";
-            string predictionUrl = await CreatePrediction(MistralModel, inputJson);
+            string url = $"https://api.replicate.com/v1/models/{MistralModel}/predictions";
+            string inputJson = GenerateInputJson(prompt);
+            string predictionUrl = await CreatePrediction(url, inputJson);
 
             return await WaitForPredictionResult(predictionUrl) ?? string.Empty;
         }
@@ -59,10 +76,38 @@ public class AIReplicateManager : AIManagerInterface
         return apiKey;
     }
 
-    private async Task<string> CreatePrediction(string model, string inputJson)
+    private string GenerateInputJson(string prompt)
     {
-        string url = "https://api.replicate.com/v1/predictions";
-        string requestBody = $"{{\"version\": \"{model}\", \"input\": {inputJson}}}";
+        return $@"{{
+            ""top_k"": 0,
+            ""top_p"": 0.95,
+            ""prompt"": ""{EscapeJsonString(prompt)}"",
+            ""temperature"": 0.3,
+            ""length_penalty"": 1,
+            ""max_new_tokens"": 170,
+            ""prompt_template"": ""{{prompt}}"",
+            ""presence_penalty"": 0,
+            ""log_performance_metrics"": false
+        }}";
+    }
+
+    private string GenerateImageInputJson(string prompt, string ratio)
+    {
+        return $@"{{
+            ""prompt"": ""{EscapeJsonString(prompt)}"",
+            ""cfg"": 5,
+            ""steps"": 30,
+            ""aspect_ratio"": ""{EscapeJsonString(ratio)}"",
+            ""output_format"": ""png"",
+            ""output_quality"": 90,
+            ""prompt_strength"": 0.95
+        }}";
+    }
+
+
+    private async Task<string> CreatePrediction(string url, string inputJson)
+    {
+        string requestBody = $"{{\"input\": {inputJson}}}";
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
@@ -70,7 +115,8 @@ public class AIReplicateManager : AIManagerInterface
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Token {m_apiKey}");
+            request.SetRequestHeader("Authorization", $"Bearer {m_apiKey}");
+            request.SetRequestHeader("Prefer", "wait");
 
             var operation = request.SendWebRequest();
 
@@ -81,6 +127,7 @@ public class AIReplicateManager : AIManagerInterface
 
             if (request.result != UnityWebRequest.Result.Success)
             {
+                Debug.LogError($"Full error response: {request.downloadHandler.text}");
                 throw new Exception($"Request failed: {request.error}");
             }
 
@@ -93,7 +140,7 @@ public class AIReplicateManager : AIManagerInterface
     {
         bool isCompleted = false;
         string result = null;
-        int maxAttempts = 30;
+        int maxAttempts = 100;
         int currentAttempt = 0;
 
         while (!isCompleted && currentAttempt < maxAttempts)
@@ -102,7 +149,7 @@ public class AIReplicateManager : AIManagerInterface
 
             using (UnityWebRequest request = UnityWebRequest.Get(predictionUrl))
             {
-                request.SetRequestHeader("Authorization", $"Token {m_apiKey}");
+                request.SetRequestHeader("Authorization", $"Bearer {m_apiKey}");
                 var operation = request.SendWebRequest();
 
                 while (!operation.isDone)
@@ -121,7 +168,7 @@ public class AIReplicateManager : AIManagerInterface
                 {
                     if (statusResponse.output != null && statusResponse.output.Length > 0)
                     {
-                        result = statusResponse.output[0];
+                        result = string.Join("", statusResponse.output);
                     }
                     else if (!string.IsNullOrEmpty(statusResponse.completion))
                     {
@@ -131,7 +178,7 @@ public class AIReplicateManager : AIManagerInterface
                 }
                 else if (statusResponse.status == "failed")
                 {
-                    throw new Exception("Prediction failed");
+                    throw new Exception($"Prediction failed: {statusResponse.error}");
                 }
                 else
                 {
@@ -200,5 +247,6 @@ public class AIReplicateManager : AIManagerInterface
         public string status;
         public string[] output;
         public string completion;
+        public string error;
     }
 }

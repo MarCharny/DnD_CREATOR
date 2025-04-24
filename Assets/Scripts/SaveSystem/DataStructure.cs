@@ -29,4 +29,5 @@ public class Character
     public string clothes;
     public string pathToFullBodyImage;
     public string pathToAvatarImage;
+    public int sex;
 }

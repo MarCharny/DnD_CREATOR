@@ -6,6 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 67fef8a79c9074a46989c9469d9b0a0f
+  - enabled: 1
+    path: Assets/Scenes/SaveScreenCharacter.unity
+    guid: e9f4f8e132d7b0244aec681dd6f77868
+  - enabled: 1
+    path: Assets/Scenes/SaveScreenMap.unity
+    guid: a816c7d448de2d242bd7ec5f217f861e
+  - enabled: 1
+    path: Assets/Scenes/CharacterEditor.unity
+    guid: c2d0fcd29016683428fe204b615b6384
+  - enabled: 1
     path: Assets/Scenes/MapEditor.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}

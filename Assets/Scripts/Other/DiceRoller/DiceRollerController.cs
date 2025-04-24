@@ -4,15 +4,41 @@ using UnityEngine;
 
 public class DiceRollerController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private DiceRollerView view;
+
+    private void OnEnable()
     {
-        
+        view.OnRoll += HandleRollRequest;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
-        
+        view.OnRoll -= HandleRollRequest;
     }
+
+    private void HandleRollRequest(DiceType type, int count)
+    {
+        view.ClearDiceContainer();
+        List<DiceData> diceResults = RollDice(type, count);
+
+        foreach (DiceData diceData in diceResults)
+        {
+            view.CreateDiceView(diceData);
+        }
+    }
+
+    private List<DiceData> RollDice(DiceType type, int count)
+    {
+        List<DiceData> results = new List<DiceData>();
+
+        for (int i = 0; i < count; i++)
+        {
+            int maxValue = (int)type;
+            int value = Random.Range(1, maxValue + 1);
+            results.Add(new DiceData(type, value));
+        }
+
+        return results;
+    }
+
 }

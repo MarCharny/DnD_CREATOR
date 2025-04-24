@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class ToggleCtrl : MonoBehaviour
 {
     [SerializeField] public int m_value;
-
     [SerializeField] private Color m_normalColor = Color.white;
     [SerializeField] private Color m_selectedColor = Color.black;
     [SerializeField] private TextMeshProUGUI m_text;
